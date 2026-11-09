@@ -63,3 +63,5 @@ python3 scripts/probe_throughput.py --via-ssh --seconds 12 --min-mbps 5
 这次改善使短期带宽更接近双路 1080p 所需量级，但没有完成双设备三小时、五设备高峰或 Netflix 实际播放验收，也不保证每个时段均达到标称带宽。
 
 参考：[Linux TCP 参数及监听器继承规则](https://docs.kernel.org/networking/ip-sysctl.html#tcp-variables)、[BBR 官方项目](https://github.com/google/bbr)。
+
+后续已经比较 FQ、Hybla 与 Hysteria 2，正式服务仍保留原 BBR + FQ-CoDel；不同测试来源、窗口和时段的数据不可直接混用。见 [进一步对照](algorithm-comparison.md)。
