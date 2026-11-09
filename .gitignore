@@ -1,0 +1,14 @@
+/backups/
+/local/
+/data/
+/secrets/
+/state/
+.env
+.env.*
+*.db
+*.db-*
+*.pem
+*.key
+*.log
+__pycache__/
+.DS_Store
