@@ -67,13 +67,11 @@ def main():
     if args.transport == 'hysteria2' and args.via_ssh:
         parser.error('The SSH TCP tunnel comparison only applies to REALITY')
     if args.hy2_down_mbps is not None and (args.transport != 'hysteria2' or args.hy2_down_mbps <= 0):
-        parser.error('Positive bandwidth hints require the Hysteria 2 trial')
+        parser.error('Positive bandwidth hints require Hysteria 2')
     source = '''import json,pathlib,urllib.request,yaml,subprocess
 c=json.loads(pathlib.Path('/home/panel/secrets/access.json').read_text())
-if __TRANSPORT__ == 'hysteria2':
- p=json.loads(pathlib.Path('/home/panel/local/hysteria-trial/client.json').read_text())
-else:
- with urllib.request.urlopen(urllib.request.Request(c['devices']['macbook']['subscription_url'],headers={'User-Agent':'mihomo'}),timeout=15) as r:p=yaml.safe_load(r.read())['proxies'][0]
+with urllib.request.urlopen(urllib.request.Request(c['devices']['macbook']['subscription_url'],headers={'User-Agent':'mihomo'}),timeout=15) as r:proxies=yaml.safe_load(r.read())['proxies']
+p=next(p for p in proxies if p['type']==('hysteria2' if __TRANSPORT__ == 'hysteria2' else 'vless'))
 p['name']='diagnostic'
 cc=subprocess.check_output(['sysctl','-n','net.ipv4.tcp_congestion_control'],text=True).strip()
 dev=json.loads(subprocess.check_output(['ip','-j','route','show','default'],text=True))[0]['dev']
@@ -118,7 +116,7 @@ print(json.dumps({'proxy':p,'cc':cc,'queues':queues}))
                                      '-d', td, '-f', str(cfg)],
                                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             ready(port, core)
-            label = ('hysteria2-brutal' if args.hy2_down_mbps is not None else 'hysteria2-bbr') if args.transport == 'hysteria2' else ('ssh-carried-reality' if args.via_ssh else 'direct-reality')
+            label = ('hysteria2-brutal' if proxy.get('down') else 'hysteria2-bbr') if args.transport == 'hysteria2' else ('ssh-carried-reality' if args.via_ssh else 'direct-reality')
 
             if args.transport == 'hysteria2':
                 check = subprocess.run(['curl', '--noproxy', '', '-x', f'http://127.0.0.1:{port}',

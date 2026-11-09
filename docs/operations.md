@@ -12,9 +12,11 @@ Mac 使用系统代理；不遵循系统代理的应用可能需要 TUN，启用
 
 ## 服务检查
 
+现已正式启用 Hysteria 2 + Brutal；客户端更新原订阅后选择 HY2-Brutal，备用 REALITY 保留。参数、订阅转换器与恢复步骤见 [Hysteria 2 部署记录](hysteria2.md)。
+
 ```sh
 sudo docker compose -f /home/panel/local/compose.yml ps
-sudo systemctl status nginx panel-status --no-pager
+sudo systemctl status nginx panel-status panel-clash-subscription --no-pager
 sudo systemctl list-timers --all --no-pager
 sudo journalctl -u panel-backup -u panel-renew --since today --no-pager
 ```

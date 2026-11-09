@@ -1,0 +1,16 @@
+[Unit]
+Description=Clash subscription bandwidth hints for native Hysteria2
+After=network.target docker.service
+[Service]
+Environment=PANEL_PUBLIC_HOST=PUBLIC_IP:8443
+User=www-data
+Group=www-data
+ExecStart=/usr/bin/python3 /home/panel/scripts/clash_subscription.py
+Restart=on-failure
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+RestrictAddressFamilies=AF_INET AF_UNIX
+[Install]
+WantedBy=multi-user.target

@@ -40,12 +40,22 @@ def collect(root):
     except (OSError, subprocess.SubprocessError):
         running = False
     ports = {}
-    for name, port in [('panel', int(runtime.get('panel_port', 2053))), ('subscription', 2096), ('proxy', 443)]:
+    listeners = [('panel', int(runtime.get('panel_port', 2053))), ('subscription', 2096), ('proxy', 443)]
+    if runtime.get('hysteria_port'):
+        listeners.append(('clash_subscription', 9101))
+    for name, port in listeners:
         try:
             with socket.create_connection(('127.0.0.1', port), timeout=2):
                 ports[name] = True
         except OSError:
             ports[name] = False
+    if runtime.get('hysteria_port'):
+        try:
+            result = subprocess.run(['ss', '-H', '-lun',
+                f"sport = :{int(runtime['hysteria_port'])}"], capture_output=True, timeout=5)
+            ports['hysteria_udp'] = result.returncode == 0 and bool(result.stdout.strip())
+        except (OSError, subprocess.SubprocessError):
+            ports['hysteria_udp'] = False
     if not running or not all(ports.values()):
         alerts.append({'id': 'service', 'text': '面板、订阅或代理监听异常。端口健康不代表线路和平台可用。'})
     free = shutil.disk_usage(root).free
