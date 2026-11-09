@@ -40,7 +40,7 @@ def collect(root):
     except (OSError, subprocess.SubprocessError):
         running = False
     ports = {}
-    for name, port in [('panel', 2053), ('subscription', 2096), ('proxy', 443)]:
+    for name, port in [('panel', int(runtime.get('panel_port', 2053))), ('subscription', 2096), ('proxy', 443)]:
         try:
             with socket.create_connection(('127.0.0.1', port), timeout=2):
                 ports[name] = True
