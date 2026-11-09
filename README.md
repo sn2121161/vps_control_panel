@@ -10,6 +10,7 @@
 - `scripts/renew.py`：运行 Certbot 续期并记录结果。
 - [操作与恢复说明](docs/operations.md)
 - [部署验证记录](docs/verification.md)
+- [完整开发与排障记录](docs/development.md)
 
 实际 Compose、反向代理、运行参数、定时器和凭据由维护者在服务器本地管理，不在公开仓库发布。需要新机重建时，先恢复自己保管的本地备份，再按照版本清单部署。
 
