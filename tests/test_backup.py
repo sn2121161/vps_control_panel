@@ -25,6 +25,8 @@ class SnapshotTest(unittest.TestCase):
                 con.execute('CREATE TABLE example(value TEXT)')
                 con.execute('INSERT INTO example VALUES (?)', ('synthetic',))
             (root / 'local/compose.yml').write_text('synthetic deployment')
+            (root / 'local/tcp-performance.conf').write_text('synthetic TCP tuning')
+            (root / 'local/modules-load.conf').write_text('synthetic module name')
             (root / 'secrets/access.json').write_text(json.dumps({'synthetic': True}))
             (root / 'secrets/github-key').write_text('must never enter backup')
             (root / 'data/unrelated.log').write_text('must never enter backup')
@@ -42,7 +44,8 @@ class SnapshotTest(unittest.TestCase):
                 self.assertEqual(hashlib.file_digest(source, 'sha256').hexdigest(), checksum)
             with tarfile.open(archive, 'r:gz') as tar:
                 self.assertEqual(set(tar.getnames()), {
-                    'data/x-ui.db', 'manifest.json', 'local/compose.yml', 'secrets/access.json'})
+                    'data/x-ui.db', 'manifest.json', 'local/compose.yml', 'secrets/access.json',
+                    'local/tcp-performance.conf', 'local/modules-load.conf'})
                 restored = root / 'state/restored.db'
                 restored.write_bytes(tar.extractfile('data/x-ui.db').read())
             with sqlite3.connect(restored) as con:

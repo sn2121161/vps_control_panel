@@ -75,6 +75,7 @@ def create_backup(root, kind='monthly'):
                     for relative in ('local/compose.yml', 'local/nginx-http.conf',
                                      'local/nginx-https.conf', 'local/runtime.json',
                                      'local/versions.json', 'local/deploy-hooks',
+                                     'local/tcp-performance.conf', 'local/modules-load.conf',
                                      'secrets/access.json', 'secrets/status.htpasswd'):
                         item = root / relative
                         if item.is_symlink():
