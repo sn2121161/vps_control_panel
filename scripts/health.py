@@ -43,6 +43,9 @@ def collect(root):
     listeners = [('panel', int(runtime.get('panel_port', 2053))), ('subscription', 2096), ('proxy', 443)]
     if runtime.get('hysteria_port'):
         listeners.append(('clash_subscription', 9101))
+    for name in ('management_proxy', 'status_proxy'):
+        if runtime.get(name + '_port'):
+            listeners.append((name, int(runtime[name + '_port'])))
     for name, port in listeners:
         try:
             with socket.create_connection(('127.0.0.1', port), timeout=2):

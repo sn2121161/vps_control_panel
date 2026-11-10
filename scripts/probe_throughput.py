@@ -49,6 +49,7 @@ def main():
     parser.add_argument('--ssh-host', default='joysol')
     parser.add_argument('--core', default='/Applications/Clash Verge.app/Contents/MacOS/verge-mihomo')
     parser.add_argument('--via-ssh', action='store_true')
+    parser.add_argument('--interface', help='Bind diagnostic sockets to the physical interface when production TUN is enabled')
     parser.add_argument('--transport', choices=('reality', 'hysteria2'), default='reality')
     parser.add_argument('--hy2-down-mbps', type=float)
     parser.add_argument('--expect-cc')
@@ -108,7 +109,8 @@ print(json.dumps({'proxy':p,'cc':cc,'queues':queues}))
             port = free_port()
             cfg.write_text(json.dumps({'mixed-port': port, 'allow-lan': False,
                 'bind-address': '127.0.0.1', 'mode': 'rule', 'log-level': 'silent',
-                'ipv6': False, 'proxies': [proxy], 'proxy-groups': [{
+                'ipv6': False, 'interface-name': args.interface or '',
+                'proxies': [proxy], 'proxy-groups': [{
                     'name': 'PROXY', 'type': 'select', 'proxies': ['diagnostic']}],
                 'rules': ['MATCH,PROXY']}))
             cfg.chmod(0o600)

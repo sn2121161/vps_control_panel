@@ -17,9 +17,37 @@ import yaml
 def configure_profile(profile):
     if not isinstance(profile, dict) or not isinstance(profile.get('proxies'), list):
         raise ValueError('Not a Clash subscription')
+    # TUN needs IPv6 processing enabled to install IPv6 routes. Disabling only
+    # Clash's IPv6 option does not disable the operating system's IPv6 path.
+    profile['ipv6'] = True
     for proxy in profile['proxies']:
         if proxy.get('type') == 'hysteria2':
             proxy.update({'down': '25 Mbps', 'up': '10 Mbps', 'skip-cert-verify': False})
+    # A dead overseas node must fail the request, never select DIRECT.
+    for group in profile.get('proxy-groups', []):
+        if group.get('name') == 'PROXY':
+            group['proxies'] = [p for p in group.get('proxies', []) if p != 'DIRECT']
+            if not group['proxies']:
+                raise ValueError('No overseas nodes')
+    dns = profile.setdefault('dns', {})
+    domestic = ['https://223.5.5.5/dns-query#DIRECT', 'https://223.6.6.6/dns-query#DIRECT']
+    overseas = ['https://1.1.1.1/dns-query#PROXY']
+    dns.update({'enable': True, 'ipv6': True, 'enhanced-mode': 'fake-ip',
+                'default-nameserver': ['https://223.5.5.5/dns-query', 'https://223.6.6.6/dns-query'],
+                'proxy-server-nameserver': domestic.copy(),
+                'direct-nameserver': domestic.copy(),
+                'nameserver': overseas.copy(),
+                'nameserver-policy': {'geosite:cn': domestic.copy(),
+                                     'geosite:geolocation-!cn': overseas.copy()}})
+    # Avoid inherited fallbacks silently sending overseas queries elsewhere.
+    dns.pop('fallback', None)
+    dns.pop('fallback-filter', None)
+    rules = profile.setdefault('rules', [])
+    foreign = 'GEOSITE,geolocation-!cn,PROXY'
+    rules[:] = [r for r in rules if r != foreign]
+    insertion = next((i for i, r in enumerate(rules)
+                      if r.startswith(('GEOSITE,cn,', 'GEOIP,CN,', 'MATCH,'))), len(rules))
+    rules.insert(insertion, foreign)
     return profile
 
 
